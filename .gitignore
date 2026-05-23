@@ -1,0 +1,12 @@
+# Dependencies (installed locally via npm, not needed on GitHub)
+node_modules/
+
+# npm lock files — optional to commit, excluding for a clean push
+package-lock.json
+
+# Claude Code editor settings (local only)
+.claude/
+
+# OS junk
+.DS_Store
+Thumbs.db
