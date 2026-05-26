@@ -207,6 +207,15 @@
   </button>
 </nav>
 
+<!-- ═══ GALLERY MODAL ═══ -->
+<div class="glbg" id="glbg" onclick="if(event.target===this)closeGallery()">
+  <button class="gl-close" onclick="closeGallery()" aria-label="Close gallery">&#x2715;</button>
+  <button class="gl-arrow gl-prev" id="gl-prev" onclick="galleryNav(-1)" aria-label="Previous">&#x2039;</button>
+  <div id="gl-stage"></div>
+  <button class="gl-arrow gl-next" id="gl-next" onclick="galleryNav(1)" aria-label="Next">&#x203A;</button>
+  <div class="gl-dots" id="gl-dots"></div>
+</div>
+
 <script src="products.js"></script>
 <script src="app.js"></script>
 </body>

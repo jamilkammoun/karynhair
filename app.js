@@ -2,12 +2,10 @@
    KARYN HAIR — APP LOGIC
    ═══════════════════════════════════════════ */
 
-// Prevent browser scroll restoration
 history.scrollRestoration = 'manual';
 
 const WA = "243812142188";
 
-// Color swatch dots — must match the color names used in products.js
 const DOTS = {
   "Natural Black":  "#111111",
   "Dark Brown":     "#3b1f0e",
@@ -16,9 +14,14 @@ const DOTS = {
   "Burgundy":       "#6e1425"
 };
 
-let cart = [];
+let cart        = [];
 let activeColor = "All";
-const selectedSizes = {}; // { productId: "22 inch" }
+const selectedSizes = {};
+
+// ─── Gallery state ───
+let glMedia  = [];   // current product's media array
+let glIdx    = 0;    // current slide index
+let glTouchX = null; // swipe start X
 
 /* ═══ CUSTOM CURSOR ═══ */
 (function initCursor() {
@@ -176,11 +179,13 @@ function renderGrid() {
   g.innerHTML = '';
 
   list.forEach((product, idx) => {
-    const card = document.createElement('div');
-    card.className = 'pcard';
-    const dotColor = DOTS[product.color] || 'var(--gold)';
+    const card       = document.createElement('div');
+    card.className   = 'pcard';
+    const dotColor   = DOTS[product.color] || 'var(--gold)';
+    const thumb      = (product.media && product.media[0]) ? product.media[0].src : product.image;
+    const hasGallery = product.media && product.media.length > 0;
+    const count      = hasGallery ? product.media.length : 0;
 
-    // Size buttons
     const sizeBtns = product.sizes.map(s => {
       const active = selectedSizes[product.id] === s.size ? ' selected' : '';
       const label  = s.size.replace(' inch', '"');
@@ -190,10 +195,21 @@ function renderGrid() {
     }).join('');
 
     card.innerHTML =
-      '<div class="pcard-img-wrap">' +
-        '<img class="pcard-img" src="' + product.image + '" ' +
-             'alt="' + product.name + ' — ' + product.color + '" loading="lazy"/>' +
+      /* ── image wrap (clickable if gallery exists) ── */
+      '<div class="pcard-img-wrap' + (hasGallery ? ' has-gallery' : '') + '"' +
+           (hasGallery ? ' onclick="openGallery(' + product.id + ',0)" role="button" tabindex="0"' : '') + '>' +
+        '<img class="pcard-img" src="' + thumb + '" ' +
+             'alt="' + product.name + ' — ' + product.color + '" loading="lazy" draggable="false"/>' +
+        (hasGallery
+          ? '<div class="pimg-overlay">' +
+              '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">' +
+                '<path d="M15 3h6m0 0v6m0-6l-7 7M9 21H3m0 0v-6m0 6l7-7"/>' +
+              '</svg>' +
+              (count > 1 ? '<span class="pimg-count">' + count + ' photos</span>' : '') +
+            '</div>'
+          : '') +
       '</div>' +
+      /* ── card body ── */
       '<div class="pbody">' +
         '<p class="pcat">' +
           '<span class="cdot" style="background:' + dotColor + '"></span>' +
@@ -212,6 +228,14 @@ function renderGrid() {
 
     g.appendChild(card);
 
+    // Keyboard: open gallery on Enter/Space when image wrap is focused
+    if (hasGallery) {
+      const wrap = card.querySelector('.pcard-img-wrap');
+      wrap.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openGallery(product.id, 0); }
+      });
+    }
+
     // Staggered reveal
     const obs = new IntersectionObserver(entries => {
       entries.forEach(entry => {
@@ -225,6 +249,84 @@ function renderGrid() {
   });
 }
 
+/* ═══════════════════════════════════════════
+   GALLERY MODAL
+   ═══════════════════════════════════════════ */
+
+function openGallery(productId, startIdx) {
+  const product = PRODUCTS.find(p => p.id === productId);
+  if (!product || !product.media || !product.media.length) return;
+  glMedia = product.media;
+  glIdx   = startIdx || 0;
+  document.getElementById('glbg').classList.add('on');
+  document.body.style.overflow = 'hidden';
+  renderGallerySlide();
+}
+
+function closeGallery() {
+  const bg = document.getElementById('glbg');
+  if (!bg) return;
+  // Pause video before hiding
+  const vid = document.querySelector('#gl-stage video');
+  if (vid) vid.pause();
+  bg.classList.remove('on');
+  document.body.style.overflow = '';
+}
+
+function galleryNav(dir) {
+  const newIdx = glIdx + dir;
+  if (newIdx < 0 || newIdx >= glMedia.length) return;
+  // Pause any playing video
+  const vid = document.querySelector('#gl-stage video');
+  if (vid) vid.pause();
+  glIdx = newIdx;
+  renderGallerySlide();
+}
+
+function renderGallerySlide() {
+  const stage = document.getElementById('gl-stage');
+  const dots  = document.getElementById('gl-dots');
+  const prev  = document.getElementById('gl-prev');
+  const next  = document.getElementById('gl-next');
+  if (!stage) return;
+
+  const item    = glMedia[glIdx];
+  const isVideo = item.type === 'video' || /\.mp4$/i.test(item.src);
+
+  if (isVideo) {
+    stage.innerHTML =
+      '<video src="' + item.src + '" controls autoplay playsinline ' +
+      'style="max-width:88vw;max-height:80vh;object-fit:contain;display:block;outline:none;border:1px solid var(--border);"></video>';
+  } else {
+    stage.innerHTML =
+      '<img src="' + item.src + '" alt="Product photo ' + (glIdx + 1) + ' of ' + glMedia.length + '" ' +
+      'draggable="false"/>';
+  }
+
+  // Arrows: show/hide based on position
+  if (prev) prev.style.display = glIdx === 0                   ? 'none' : 'flex';
+  if (next) next.style.display = glIdx === glMedia.length - 1  ? 'none' : 'flex';
+
+  // Dots
+  if (dots) {
+    dots.innerHTML = '';
+    if (glMedia.length > 1) {
+      glMedia.forEach((_, i) => {
+        const d    = document.createElement('button');
+        d.className      = 'gl-dot' + (i === glIdx ? ' on' : '');
+        d.setAttribute('aria-label', 'Go to photo ' + (i + 1));
+        d.onclick = () => {
+          const v = document.querySelector('#gl-stage video');
+          if (v) v.pause();
+          glIdx = i;
+          renderGallerySlide();
+        };
+        dots.appendChild(d);
+      });
+    }
+  }
+}
+
 /* ═══ CART ═══ */
 function addC(id, btn) {
   const product = PRODUCTS.find(x => x.id === id);
@@ -232,13 +334,12 @@ function addC(id, btn) {
 
   const size = selectedSizes[id];
   if (!size) {
-    // Shake the size selector to prompt selection
     const card = btn.closest('.pcard');
     if (card) {
       const sel = card.querySelector('.size-selector');
       if (sel) {
         sel.classList.remove('size-required');
-        void sel.offsetWidth; // reflow to restart animation
+        void sel.offsetWidth;
         sel.classList.add('size-required');
         setTimeout(() => sel.classList.remove('size-required'), 700);
       }
@@ -248,21 +349,13 @@ function addC(id, btn) {
     return;
   }
 
+  const thumb   = (product.media && product.media[0]) ? product.media[0].src : product.image;
   const cartKey = id + '-' + size;
   const existing = cart.find(x => x.cartKey === cartKey);
   if (existing) {
     existing.qty++;
   } else {
-    cart.push({
-      cartKey,
-      id,
-      name:  product.name,
-      color: product.color,
-      size,
-      image: product.image,
-      price: null,
-      qty:   1
-    });
+    cart.push({ cartKey, id, name: product.name, color: product.color, size, image: thumb, price: null, qty: 1 });
   }
 
   updCart();
@@ -270,7 +363,6 @@ function addC(id, btn) {
   btn.classList.add('added');
   setTimeout(() => { btn.textContent = 'Add to Cart'; btn.classList.remove('added'); }, 1300);
 
-  // Badge bounce
   const badge = document.getElementById('cnt');
   if (badge) {
     badge.classList.remove('bounce');
@@ -294,20 +386,16 @@ function chQ(cartKey, delta) {
 }
 
 function updCart() {
-  const count = cart.reduce((s, item) => s + item.qty, 0);
-  const total = cart.reduce((s, item) => s + (Number(item.price) || 0) * item.qty, 0);
+  const count = cart.reduce((s, i) => s + i.qty, 0);
+  const total = cart.reduce((s, i) => s + (Number(i.price) || 0) * i.qty, 0);
 
-  // Desktop badge
   const cnt = document.getElementById('cnt');
   if (cnt) cnt.textContent = count;
-  // Mobile badge
   const mobCnt = document.getElementById('mob-cnt');
   if (mobCnt) mobCnt.textContent = count > 0 ? '(' + count + ')' : '';
-  // Total
   const tot = document.getElementById('tot');
   if (tot) tot.textContent = total > 0 ? '$' + total.toFixed(2) : '—';
 
-  // Cart list
   const el = document.getElementById('clist');
   if (!el) return;
   if (!cart.length) {
@@ -383,4 +471,31 @@ function sendWA() {
   window.scrollTo(0, 0);
   go('home');
   buildFilters();
+
+  // ── Gallery: keyboard navigation ──
+  document.addEventListener('keydown', e => {
+    const bg = document.getElementById('glbg');
+    if (!bg || !bg.classList.contains('on')) return;
+    if (e.key === 'ArrowLeft')  { e.preventDefault(); galleryNav(-1); }
+    if (e.key === 'ArrowRight') { e.preventDefault(); galleryNav(1);  }
+    if (e.key === 'Escape')     closeGallery();
+  });
+
+  // ── Gallery: touch swipe (registered once) ──
+  const glbg = document.getElementById('glbg');
+  if (glbg) {
+    glbg.addEventListener('touchstart', e => {
+      // Only start swipe if not touching a button/video
+      if (e.target.closest('button, video')) return;
+      glTouchX = e.touches[0].clientX;
+    }, { passive: true });
+
+    glbg.addEventListener('touchend', e => {
+      if (glTouchX === null) return;
+      const dx = e.changedTouches[0].clientX - glTouchX;
+      glTouchX = null;
+      if (Math.abs(dx) < 44) return; // too short — ignore, treat as tap
+      galleryNav(dx < 0 ? 1 : -1);
+    }, { passive: true });
+  }
 })();
