@@ -9,7 +9,7 @@
         { type: "image", src: "images/products/black/7.jpg" }
         { type: "video", src: "images/products/black/7.mp4" }
 
-   2. Set each size's price as a number  →  price: 89.99
+   2. Set each size's price as a number  →  price: 170
       Leave as null to show "Coming Soon".
 
    3. Save this file — the shop updates instantly.
@@ -20,7 +20,6 @@
 const PRODUCTS = [
 
   /* ──────────────────── NATURAL BLACK ──────────────────── */
-  /* Files: 1.jpg  2.jpg  3.jpg  4.jpg  5.jpg  6.mp4        */
   {
     id:          1,
     name:        "13×4 Lace Wig Straight",
@@ -36,16 +35,15 @@ const PRODUCTS = [
       { type: "video", src: "images/products/black/6.mp4" }
     ],
     sizes: [
-      { size: "20 inch", price: null },
-      { size: "22 inch", price: null },
-      { size: "24 inch", price: null },
-      { size: "26 inch", price: null },
-      { size: "28 inch", price: null }
+      { size: '20"', price: 170 },
+      { size: '22"', price: 200 },
+      { size: '24"', price: 220 },
+      { size: '26"', price: 250 },
+      { size: '28"', price: 270 }
     ]
   },
 
   /* ──────────────────── DARK BROWN ──────────────────── */
-  /* Files: 1.jpg  2.jpg  3.jpg                           */
   {
     id:          2,
     name:        "13×4 Lace Wig Straight",
@@ -58,16 +56,15 @@ const PRODUCTS = [
       { type: "image", src: "images/products/dark-brown/3.jpg" }
     ],
     sizes: [
-      { size: "20 inch", price: null },
-      { size: "22 inch", price: null },
-      { size: "24 inch", price: null },
-      { size: "26 inch", price: null },
-      { size: "28 inch", price: null }
+      { size: '20"', price: 170 },
+      { size: '22"', price: 200 },
+      { size: '24"', price: 220 },
+      { size: '26"', price: 250 },
+      { size: '28"', price: 270 }
     ]
   },
 
   /* ──────────────────── MEDIUM BROWN ──────────────────── */
-  /* Files: 1.jpg  2.jpg  3.mp4                            */
   {
     id:          3,
     name:        "13×4 Lace Wig Straight",
@@ -80,16 +77,15 @@ const PRODUCTS = [
       { type: "video", src: "images/products/medium-brown/3.mp4" }
     ],
     sizes: [
-      { size: "20 inch", price: null },
-      { size: "22 inch", price: null },
-      { size: "24 inch", price: null },
-      { size: "26 inch", price: null },
-      { size: "28 inch", price: null }
+      { size: '20"', price: 170 },
+      { size: '22"', price: 200 },
+      { size: '24"', price: 220 },
+      { size: '26"', price: 250 },
+      { size: '28"', price: 270 }
     ]
   },
 
   /* ──────────────────── BLONDE ──────────────────── */
-  /* Files: 1.jpg  2.jpg  3.jpg  4.mp4               */
   {
     id:          4,
     name:        "13×4 Lace Wig Straight",
@@ -103,16 +99,15 @@ const PRODUCTS = [
       { type: "video", src: "images/products/blonde/4.mp4" }
     ],
     sizes: [
-      { size: "20 inch", price: null },
-      { size: "22 inch", price: null },
-      { size: "24 inch", price: null },
-      { size: "26 inch", price: null },
-      { size: "28 inch", price: null }
+      { size: '20"', price: 170 },
+      { size: '22"', price: 200 },
+      { size: '24"', price: 220 },
+      { size: '26"', price: 250 },
+      { size: '28"', price: 270 }
     ]
   },
 
   /* ──────────────────── BURGUNDY ──────────────────── */
-  /* Files: 1.jpg  2.jpg  3.mp4                        */
   {
     id:          5,
     name:        "13×4 Lace Wig Straight",
@@ -125,11 +120,11 @@ const PRODUCTS = [
       { type: "video", src: "images/products/burgundy/3.mp4" }
     ],
     sizes: [
-      { size: "20 inch", price: null },
-      { size: "22 inch", price: null },
-      { size: "24 inch", price: null },
-      { size: "26 inch", price: null },
-      { size: "28 inch", price: null }
+      { size: '20"', price: 170 },
+      { size: '22"', price: 200 },
+      { size: '24"', price: 220 },
+      { size: '26"', price: 250 },
+      { size: '28"', price: 270 }
     ]
   }
 
