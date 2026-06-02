@@ -828,7 +828,7 @@ function sendWA() {
   window.scrollTo(0, 0);
 
   // Load saved language
-  LANG = localStorage.getItem('lang') || 'en';
+  LANG = localStorage.getItem('lang') || 'fr';
 
   // Apply initial language to static elements
   document.querySelectorAll('[data-i18n]').forEach(el => {
