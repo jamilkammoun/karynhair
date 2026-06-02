@@ -540,8 +540,9 @@ function renderGrid() {
 
     const sizeBtns = product.sizes.map(s => {
       const active = selectedSizes[product.id] === s.size ? ' selected' : '';
+      const safeSize = s.size.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
       return '<button class="size-btn' + active + '" ' +
-             'onclick="selectSize(' + product.id + ',\'' + s.size.replace(/'/g, "\\'") + '\',this)">' +
+             'onclick="selectSize(' + product.id + ',\'' + safeSize + '\',this)">' +
              s.size + '</button>';
     }).join('');
 
